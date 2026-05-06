@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Panel ZYN</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#060609;--surface:#0d0d16;
+  --gold:#f5c842;--orange:#ff6a00;--red:#ff1e1e;
+  --cyan:#00e5ff;--green:#00ff88;
+  --dim:#3a3a50;--text:#c8c0d8;
+  --border:rgba(245,200,66,0.12);
+}
+html,body{background:var(--bg);font-family:'Share Tech Mono',monospace;color:var(--text);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 0%,rgba(255,106,0,0.10) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 40% at 100% 100%,rgba(255,30,30,0.07) 0%,transparent 60%)}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,transparent 0,transparent 3px,rgba(0,0,0,0.12) 3px,rgba(0,0,0,0.12) 4px)}
+
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sweep{0%{left:-100%}60%,100%{left:160%}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(255,106,0,0.4)}50%{box-shadow:0 0 40px rgba(255,106,0,0.8)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+
+/* ══ SPLASH ══ */
+#splash{
+  position:fixed;inset:0;z-index:999;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity 0.6s ease, transform 0.6s ease;
+}
+#splash.hide{opacity:0;transform:scale(1.06);pointer-events:none}
+
+.sp-ring{
+  width:100px;height:100px;border-radius:50%;
+  background:conic-gradient(var(--gold),var(--orange),var(--red),transparent,transparent);
+  animation:spin 1.6s linear infinite;
+  -webkit-mask:radial-gradient(circle,transparent 56%,black 57%);
+  mask:radial-gradient(circle,transparent 56%,black 57%);
+  margin-bottom:20px;
+}
+.sp-logo{
+  font-family:'Orbitron',monospace;font-weight:900;font-size:40px;letter-spacing:10px;
+  background:linear-gradient(180deg,#fff 0%,var(--gold) 40%,var(--orange) 80%,var(--red) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:fadeUp 0.7s ease both;
+}
+.sp-sub{font-size:9px;letter-spacing:6px;color:var(--dim);margin-top:5px;animation:fadeUp 0.7s 0.15s ease both}
+
+.sp-bar-wrap{
+  width:220px;height:3px;background:rgba(255,255,255,0.06);
+  border-radius:2px;margin-top:30px;overflow:hidden;
+  animation:fadeUp 0.7s 0.3s ease both;
+}
+.sp-bar{height:100%;width:0%;border-radius:2px;
+  background:linear-gradient(90deg,var(--red),var(--orange),var(--gold));
+  box-shadow:0 0 8px var(--orange);transition:width 0.3s ease}
+.sp-status{font-size:8px;letter-spacing:2px;color:var(--dim);margin-top:8px;
+  animation:fadeUp 0.7s 0.4s ease both;min-height:14px;text-align:center}
+
+.sp-btn{
+  margin-top:28px;padding:13px 44px;border:none;border-radius:8px;
+  background:linear-gradient(135deg,var(--red),var(--orange),var(--gold));
+  color:#000;font-family:'Orbitron',monospace;font-size:11px;
+  font-weight:700;letter-spacing:4px;cursor:pointer;
+  position:relative;overflow:hidden;
+  box-shadow:0 4px 24px rgba(255,106,0,0.4);
+  animation:fadeUp 0.5s ease both, glow 2s infinite;
+  transition:transform 0.15s;display:none;
+}
+.sp-btn::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+  animation:sweep 2s infinite;transform:skewX(-20deg)}
+.sp-btn:active{transform:scale(0.96)}
+
+/* ══ PANEL ══ */
+#panel{display:none;position:relative;z-index:1;opacity:0;transition:opacity 0.5s ease}
+#panel.show{opacity:1}
+
+.wrap{max-width:400px;margin:0 auto;padding:14px 14px 24px}
+
+.hdr{text-align:center;padding:12px 0 8px}
+.hdr-badge{display:inline-flex;align-items:center;gap:5px;
+  background:rgba(255,106,0,0.08);border:1px solid rgba(255,106,0,0.25);
+  border-radius:20px;padding:3px 10px;font-size:8px;letter-spacing:3px;color:var(--orange);margin-bottom:8px}
+.hdr-badge i{width:5px;height:5px;background:var(--orange);border-radius:50%;
+  box-shadow:0 0 7px var(--orange);animation:blink 1.4s infinite;display:inline-block}
+.hdr-title{font-family:'Orbitron',monospace;font-weight:900;font-size:26px;letter-spacing:6px}
+.t1{background:linear-gradient(180deg,#fff,var(--gold) 60%,var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.t2{background:linear-gradient(180deg,var(--orange),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdr-line{width:100px;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);margin:7px auto 0}
+.hdr-sub{font-size:8px;letter-spacing:4px;color:var(--dim);margin-top:8px}
+
+.dv{display:flex;align-items:center;gap:7px;margin:12px 0 8px}
+.dv-l{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border))}
+.dv-l.r{background:linear-gradient(270deg,transparent,var(--border))}
+.dv-d{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);box-shadow:0 0 7px var(--gold);flex-shrink:0}
+.dv-t{font-size:8px;letter-spacing:3px;color:var(--dim);text-transform:uppercase}
+
+.sbar{display:flex;justify-content:space-between;
+  background:var(--surface);border:1px solid rgba(255,255,255,0.04);
+  border-radius:8px;padding:7px 12px;margin-bottom:10px}
+.si{display:flex;align-items:center;gap:4px;font-size:8px;color:var(--dim);letter-spacing:1px}
+.si span{color:var(--green)}
+.sd{width:5px;height:5px;border-radius:50%}
+.sd.g{background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 1.5s infinite}
+.sd.y{background:var(--gold)}
+.sd.r{background:var(--red);animation:blink 2s infinite}
+
+.ucard{background:linear-gradient(135deg,rgba(245,200,66,0.05),rgba(255,106,0,0.02));
+  border:1px solid var(--border);border-radius:12px;padding:12px;
+  display:flex;align-items:center;gap:12px;position:relative;overflow:hidden}
+.ucard::before,.ucard::after{content:'';position:absolute;width:10px;height:10px;border-color:rgba(245,200,66,0.4);border-style:solid}
+.ucard::before{top:5px;left:5px;border-width:1px 0 0 1px}
+.ucard::after{bottom:5px;right:5px;border-width:0 1px 1px 0}
+.ava-w{position:relative;flex-shrink:0}
+.ava{width:48px;height:48px;border-radius:50%;background:#1a1008;display:flex;align-items:center;justify-content:center;font-size:20px}
+.ava-ring{position:absolute;inset:-3px;border-radius:50%;
+  background:conic-gradient(var(--gold),var(--orange),var(--red),var(--orange),var(--gold));
+  animation:spin 4s linear infinite;
+  -webkit-mask:radial-gradient(circle,transparent 54%,black 55%);
+  mask:radial-gradient(circle,transparent 54%,black 55%)}
+.ava-on{position:absolute;bottom:0;right:0;width:10px;height:10px;
+  background:var(--green);border-radius:50%;border:2px solid var(--bg);box-shadow:0 0 6px var(--green);animation:blink 2s infinite}
+.uinfo{flex:1}
+.uname{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:2px;color:var(--gold)}
+.uid{font-size:8px;color:var(--dim);margin-top:2px}
+.urank{display:inline-flex;align-items:center;gap:4px;margin-top:5px;
+  background:rgba(255,30,30,0.1);border:1px solid rgba(255,30,30,0.2);
+  border-radius:4px;padding:2px 7px;font-size:8px;color:#ff8888}
+.vipbadge{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.vip-ico{font-size:18px;filter:drop-shadow(0 0 7px rgba(245,200,66,0.8));animation:pulse 3s ease-in-out infinite}
+.vip-lbl{font-family:'Orbitron',monospace;font-size:7px;letter-spacing:2px;color:var(--gold);margin-top:2px}
+
+/* TOGGLE ROWS */
+.tlist{display:flex;flex-direction:column;gap:7px}
+.trow{
+  background:var(--surface);border:1px solid rgba(255,255,255,0.04);
+  border-radius:10px;padding:11px 14px;
+  display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:all 0.22s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;user-select:none;
+}
+.trow::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--dim);border-radius:2px 0 0 2px;transition:background 0.3s}
+.trow.on{border-color:rgba(255,106,0,0.28);
+  background:linear-gradient(135deg,rgba(255,106,0,0.07),rgba(255,30,30,0.03));
+  box-shadow:0 0 14px rgba(255,106,0,0.07)}
+.trow.on::before{background:linear-gradient(180deg,var(--gold),var(--orange))}
+.trow:active{transform:scale(0.98)}
+.trow-ico{font-size:17px;flex-shrink:0;width:22px;text-align:center}
+.trow-info{flex:1}
+.trow-name{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text);transition:color 0.2s}
+.trow.on .trow-name{color:var(--gold)}
+.trow-desc{font-size:8px;color:var(--dim);margin-top:2px}
+.trow-stat{font-size:8px;letter-spacing:1px;color:var(--dim);transition:color 0.2s;white-space:nowrap;margin-right:6px}
+.trow.on .trow-stat{color:var(--green)}
+.pill{width:34px;height:18px;border-radius:9px;background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.1);position:relative;transition:all 0.3s;flex-shrink:0}
+.pill::after{content:'';position:absolute;top:3px;left:3px;width:10px;height:10px;
+  border-radius:50%;background:var(--dim);transition:all 0.3s}
+.trow.on .pill{background:rgba(255,106,0,0.2);border-color:var(--orange)}
+.trow.on .pill::after{left:19px;background:var(--orange);box-shadow:0 0 8px var(--orange)}
+
+.btn{width:100%;padding:13px;border:none;border-radius:9px;
+  font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:4px;
+  cursor:pointer;position:relative;overflow:hidden;transition:all 0.2s;
+  margin-bottom:7px;text-transform:uppercase}
+.btn:active{transform:scale(0.97)}
+.btn-fire{background:linear-gradient(135deg,var(--red),var(--orange),var(--gold));color:#000;box-shadow:0 4px 20px rgba(255,106,0,0.3)}
+.btn-fire::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
+  animation:sweep 2.5s infinite;transform:skewX(-20deg)}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--dim)}
+
+.toast{position:fixed;bottom:20px;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:rgba(6,6,9,0.95);border:1px solid rgba(255,106,0,0.35);
+  border-radius:8px;padding:9px 18px;font-size:10px;letter-spacing:1px;
+  color:var(--text);white-space:nowrap;z-index:998;
+  transition:transform 0.35s cubic-bezier(.4,0,.2,1),opacity 0.35s;
+  opacity:0;display:flex;align-items:center;gap:7px;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green)}
+
+.footer{text-align:center;padding:10px 0 2px;font-size:8px;letter-spacing:3px;color:var(--dim)}
+.footer b{color:var(--orange)}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="sp-ring"></div>
+  <div class="sp-logo">ZYN</div>
+  <div class="sp-sub">FREE FIRE · PANEL</div>
+  <div class="sp-bar-wrap"><div class="sp-bar" id="spbar"></div></div>
+  <div class="sp-status" id="spstat">MENGHUBUNGKAN...</div>
+  <button class="sp-btn" id="spbtn" onclick="startPanel()">▶ &nbsp;MASUK PANEL</button>
+</div>
+
+<!-- PANEL -->
+<div id="panel">
+<div class="wrap">
+
+  <div class="hdr">
+    <div class="hdr-badge"><i></i> SISTEM AKTIF</div>
+    <div class="hdr-title"><span class="t1">ZYN</span><span class="t2"> PANEL</span></div>
+    <div class="hdr-line"></div>
+    <div class="hdr-sub">FREE FIRE · INTERFACE v3.0</div>
+  </div>
+
+  <div class="dv" style="margin-top:14px">
+    <div class="dv-l"></div><div class="dv-d"></div><div class="dv-l r"></div>
+  </div>
+
+  <div class="sbar">
+    <div class="si"><div class="sd g"></div>SERVER <span>ID-12</span></div>
+    <div class="si"><div class="sd y"></div>PING <span>24ms</span></div>
+    <div class="si"><div class="sd r"></div>BYPASS <span>ON</span></div>
+  </div>
+
+  <div class="ucard">
+    <div class="ava-w">
+      <div class="ava-ring"></div>
+      <div class="ava">🎮</div>
+      <div class="ava-on"></div>
+    </div>
+    <div class="uinfo">
+      <div class="uname">ZYN1417</div>
+      <div class="uid">UID · 6969 ████ 420</div>
+      <div class="urank">🏆 GRANDMASTER S32</div>
+    </div>
+    <div class="vipbadge">
+      <div class="vip-ico">👑</div>
+      <div class="vip-lbl">VIP S+</div>
+    </div>
+  </div>
+
+  <div class="dv">
+    <div class="dv-l"></div><div class="dv-t">◈ fitur</div><div class="dv-l r"></div>
+  </div>
+
+  <div class="tlist">
+    <div class="trow on" onclick="tog(this,'AIM ASSIST ON','AIM ASSIST OFF')">
+      <div class="trow-ico">🎯</div>
+      <div class="trow-info"><div class="trow-name">AIM ASSIST</div><div class="trow-desc">Bantu arahkan bidikan otomatis</div></div>
+      <div class="trow-stat">AKTIF</div><div class="pill"></div>
+    </div>
+    <div class="trow" onclick="tog(this,'WALL SEE ON','WALL SEE OFF')">
+      <div class="trow-ico">👁️</div>
+      <div class="trow-info"><div class="trow-name">WALL SEE</div><div class="trow-desc">Lihat musuh lewat tembok</div></div>
+      <div class="trow-stat">OFF</div><div class="pill"></div>
+    </div>
+    <div class="trow on" onclick="tog(this,'NO RECOIL ON','NO RECOIL OFF')">
+      <div class="trow-ico">🔫</div>
+      <div class="trow-info"><div class="trow-name">NO RECOIL</div><div class="trow-desc">Hilangkan recoil senjata</div></div>
+      <div class="trow-stat">AKTIF</div><div class="pill"></div>
+    </div>
+    <div class="trow" onclick="tog(this,'SPEED MODE ON','SPEED MODE OFF')">
+      <div class="trow-ico">⚡</div>
+      <div class="trow-info"><div class="trow-name">SPEED MODE</div><div class="trow-desc">Tambah kecepatan gerak</div></div>
+      <div class="trow-stat">OFF</div><div class="pill"></div>
+    </div>
+    <div class="trow on" onclick="tog(this,'ANTI DETECT ON','ANTI DETECT OFF')">
+      <div class="trow-ico">🛡️</div>
+      <div class="trow-info"><div class="trow-name">ANTI DETECT</div><div class="trow-desc">Proteksi dari sistem deteksi</div></div>
+      <div class="trow-stat">AKTIF</div><div class="pill"></div>
+    </div>
+    <div class="trow" onclick="tog(this,'DMG BOOST ON','DMG BOOST OFF')">
+      <div class="trow-ico">💥</div>
+      <div class="trow-info"><div class="trow-name">DMG BOOST</div><div class="trow-desc">Tingkatkan damage serangan</div></div>
+      <div class="trow-stat">OFF</div><div class="pill"></div>
+    </div>
+    <div class="trow" onclick="tog(this,'AUTO LOOT ON','AUTO LOOT OFF')">
+      <div class="trow-ico">💎</div>
+      <div class="trow-info"><div class="trow-name">AUTO LOOT</div><div class="trow-desc">Ambil item otomatis</div></div>
+      <div class="trow-stat">OFF</div><div class="pill"></div>
+    </div>
+    <div class="trow on" onclick="tog(this,'MINI RADAR ON','MINI RADAR OFF')">
+      <div class="trow-ico">📡</div>
+      <div class="trow-info"><div class="trow-name">MINI RADAR</div><div class="trow-desc">Tampilkan posisi musuh di radar</div></div>
+      <div class="trow-stat">AKTIF</div><div class="pill"></div>
+    </div>
+    <div class="trow on" onclick="tog(this,'RASIO HS ON','RASIO HS OFF')">
+      <div class="trow-ico">💀</div>
+      <div class="trow-info"><div class="trow-name">RASIO HEADSHOT</div><div class="trow-desc">Tingkatkan persentase headshot</div></div>
+      <div class="trow-stat">AKTIF</div><div class="pill"></div>
+    </div>
+    <div class="trow" onclick="tog(this,'RASIO BADAN ON','RASIO BADAN OFF')">
+      <div class="trow-ico">🧍</div>
+      <div class="trow-info"><div class="trow-name">RASIO BADAN</div><div class="trow-desc">Bidik area badan secara akurat</div></div>
+      <div class="trow-stat">OFF</div><div class="pill"></div>
+    </div>
+    <div class="trow on" onclick="tog(this,'AIM NECK ON','AIM NECK OFF')">
+      <div class="trow-ico">🎯</div>
+      <div class="trow-info"><div class="trow-name">AIM NECK</div><div class="trow-desc">Arahkan bidikan ke area leher</div></div>
+      <div class="trow-stat">AKTIF</div><div class="pill"></div>
+    </div>
+  </div>
+
+  <div class="dv">
+    <div class="dv-l"></div><div class="dv-t">◈ aksi</div><div class="dv-l r"></div>
+  </div>
+
+  <button class="btn btn-fire" onclick="activateAll()">▶ &nbsp;AKTIFKAN SEMUA</button>
+  <button class="btn btn-ghost" onclick="resetAll()">↺ &nbsp;RESET DEFAULT</button>
+
+  <div class="footer">DIBUAT OLEH <b>ZYN1417</b> · PANEL FF v3.0</div>
+</div>
+</div>
+
+<div class="toast" id="toast">
+  <div class="toast-dot"></div>
+  <span id="tmsg">OK</span>
+</div>
+
+<script>
+// ── SPLASH LOADING ──
+const steps = [
+  [15,  'MENGHUBUNGKAN KE SERVER...'],
+  [35,  'BYPASS AKTIF...'],
+  [55,  'MEMUAT FITUR...'],
+  [75,  'VERIFIKASI AKUN...'],
+  [90,  'MENYIAPKAN PANEL...'],
+  [100, '✓ SIAP DIGUNAKAN!'],
+];
+let cur = 0;
+const bar = document.getElementById('spbar');
+const stat = document.getElementById('spstat');
+const btn = document.getElementById('spbtn');
+
+function runLoad() {
+  if (cur >= steps.length) {
+    btn.style.display = 'inline-block';
+    stat.style.color = 'var(--green)';
+    return;
+  }
+  const [pct, msg] = steps[cur++];
+  bar.style.width = pct + '%';
+  stat.textContent = msg;
+  const delay = cur === steps.length ? 400 : 450 + Math.random() * 350;
+  setTimeout(runLoad, delay);
+}
+setTimeout(runLoad, 700);
+
+function startPanel() {
+  const splash = document.getElementById('splash');
+  const panel = document.getElementById('panel');
+  splash.classList.add('hide');
+  setTimeout(() => {
+    splash.style.display = 'none';
+    panel.style.display = 'block';
+    requestAnimationFrame(() => panel.classList.add('show'));
+  }, 600);
+}
+
+// ── TOGGLE ──
+let toastT;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('tmsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2000);
+}
+function tog(el, on, off) {
+  const isOn = el.classList.toggle('on');
+  el.querySelector('.trow-stat').textContent = isOn ? 'AKTIF' : 'OFF';
+  showToast(isOn ? '✓ ' + on : '— ' + off);
+}
+function activateAll() {
+  document.querySelectorAll('.trow').forEach(r => {
+    r.classList.add('on');
+    r.querySelector('.trow-stat').textContent = 'AKTIF';
+  });
+  showToast('✓ Semua fitur diaktifkan');
+}
+function resetAll() {
+  document.querySelectorAll('.trow').forEach(r => {
+    r.classList.remove('on');
+    r.querySelector('.trow-stat').textContent = 'OFF';
+  });
+  showToast('↺ Reset ke default');
+}
+</script>
+</body>
+</html>
